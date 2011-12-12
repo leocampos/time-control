@@ -1,0 +1,21 @@
+grammar TaskTime
+  rule main 
+   ([^\s] / '\s' !time)+ time?
+  end
+  
+  rule time
+    '[' inc_dec / range ']'
+  end
+  
+  rule inc_dec
+    [+-] '\d'+ [smhd]
+  end
+  
+  rule range
+    period ('-' period)?
+  end
+  
+  rule period
+    ('\d' '\d') ('\d' '\d')?
+  end
+end
