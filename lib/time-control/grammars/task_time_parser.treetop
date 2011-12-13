@@ -1,21 +1,24 @@
 grammar TaskTime
-  rule main 
-   ([^\s] / '\s' !time)+ time?
+  rule main
+    ([^\s+-] / "\s" !([0-9] 2..2) / "\s" !([+-] [0-9]+ [smhd]))+
   end
-  
-  rule time
-    '[' inc_dec / range ']'
-  end
-  
+  # rule main 
+  #  ([^\s] / '\s' !time)+ time?
+  # end
+  # 
+  # rule time
+  #   '[' inc_dec / range ']'
+  # end
+  # 
   rule inc_dec
-    [+-] '\d'+ [smhd]
+    [+-] [0-9]+ [smhd]
   end
-  
-  rule range
-    period ('-' period)?
-  end
-  
-  rule period
-    ('\d' '\d') ('\d' '\d')?
-  end
+  # 
+  # rule range
+  #   period ('-' period)?
+  # end
+  # 
+  # rule period
+  #   [0-9] 2..2 / [0-9] 4..4
+  # end
 end

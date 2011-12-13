@@ -1,6 +1,7 @@
 gem 'treetop'
 
 group :test do
+  gem 'ruby-debug'
   gem 'rspec'
 end
 
