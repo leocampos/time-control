@@ -14,7 +14,13 @@ describe TimeControl::Parser::TaskTimeParser do
   end
   
   it 'should parse "reunião com leo" as a name' do
-    debugger
     parse('reunião com leo').should_not be_nil
+    parse('com uso do + no meio do texto').should_not be_nil
+    parse('com uso do +5 no meio do texto').should_not be_nil
+    parse('com uso do +5m no meio do texto').should be_nil
+    
+    parse('com uso do +5m').should_not be_nil
+    parse('com uso do 16').should_not be_nil
+    parse('com uso do 25').should_not be_nil #Passa a considerar tudo como nome da Task
   end
 end
