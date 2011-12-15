@@ -1,43 +1,66 @@
 require 'spec_helper'
 
 describe TimeControl::Task do
-  context 'ao iniciar' do
-    it 'deveria carregar as 100 mais usadas' do
-      pending "Not yet implemented"
+  context 'the class' do
+    it 'should respond to parse' do
+      TimeControl::Task.should respond_to(:parse)
     end
-  end
-  
-  context 'ao inputar uma task nova' do
-    context 'com nome apenas' do
-      pending "Not yet implemented"
-    end
-    
-    context 'com horário' do
-      context 'na sintaxe [+-]\d+[smhd] deveria usar o horário atual' do
-        it 'adicionado/subtraído de n unidades de tempo' do
-          pending "Not yet implemented"
+
+    context 'when the constructor is called' do
+      it 'without any parameters it should create an empty task' do
+        task = TimeControl::Task.new
+        task.name.should be_nil
+        task.start_time.should be_nil
+        task.end_time.should be_nil
+      end
+
+      it 'should create task with its name attribute setted if first param is a String/Symbol' do
+        task_name = "This is a task name"
+        task = TimeControl::Task.new(task_name)
+        task.name.should == task_name
+
+        task = TimeControl::Task.new(:email)
+        task.name.should == 'email'
+      end
+
+      context 'with a hash argument' do
+        it 'it should create a task with its name attribute setted if hash has a :name/"name" key' do
+          task_name = "This is a task name"
+          task = TimeControl::Task.new(:name => task_name)
+          task.name.should == task_name
+
+          task = TimeControl::Task.new('name' => task_name)
+          task.name.should == task_name
+        end
+
+        it 'should create a task with start_time if hash has a :start/"start" key' do
+          time = Time.mktime(2011,12,15)
+
+          task = TimeControl::Task.new(:start => time)
+          task.start_time.should == time
+
+          task = TimeControl::Task.new('start' => time)
+          task.start_time.should == time
         end
       end
-      
-      context 'na sintaxe \d{4}(-\d{4})?' do
-        it 'deveria usar horário de início fixo' do
-          pending "Not yet implemented"
-        end
-        
-        it 'deveria usar horário de fim caso o segundo conjunto de horário seja fornecido' do
-          pending "Not yet implemented"
-        end
-      end
-    end
-    
-    it 'deveria exibir erro se houver erro de sintaxe' do
-      pending "Not yet implemented"
     end
   end
-  
-  context 'ao salvar uma task' do
-    it 'deveria salvar o horário como fim da task anterior' do
-      pending "Not yet implemented"
+
+  context 'the instance' do
+    before(:each) do
+      @task = TimeControl::Task.new
+    end
+
+    it 'should respond to name' do
+      @task.should respond_to(:name)
+    end
+
+    it 'should respond to start_time' do
+      @task.should respond_to(:start_time)
+    end
+
+    it 'should respond to end_time' do
+      @task.should respond_to(:end_time)
     end
   end
 end
