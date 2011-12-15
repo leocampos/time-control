@@ -31,11 +31,18 @@ module TimeControl
   				amount = mtc[2]
   				unit = mtc[3]
 
-  				start_time = now
-  			elsif time_setting =~ /^\d{2}$/
-  			elsif time_setting =~ /^\d{4}$/
-  			elsif time_setting =~ /^\d{2}-\d{2}$/
-  			elsif time_setting =~ /^\d{2}-\d{4}$/
+          hour = 3600
+          day = 24 * hour
+          
+          unit_mapping = {'s'=>1, 'm' => 60, 'h' => hour, 'd' => day}
+          seconds = (amount.to_i * unit_mapping[unit])
+          seconds *= -1 if operator == '-'
+          
+  				start_time = now + seconds
+  			elsif (mtc = time_setting.match(/^(\d{2})(\d{2})?$/))
+  			  minute = mtc[2]
+  			  hour = mtc[1]
+  			elsif (mtc = time_setting.match(/^(\d{4}|\d{2})-(\d{4}|\d{2})$/)
   			end
   		end
 

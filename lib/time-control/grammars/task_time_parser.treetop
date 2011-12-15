@@ -1,6 +1,6 @@
 grammar TaskTime
   rule main
-    name time_setting:time?
+    name ' '? time_setting:time?
   end
 
   rule name
@@ -16,7 +16,7 @@ grammar TaskTime
   end
   
   rule range
-    hour minute? ('-' range)?
+    (hour minute? ('-' range)?) !.
   end
   
   rule hour

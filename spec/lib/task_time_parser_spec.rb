@@ -65,6 +65,27 @@ describe TimeControl::Parser::TaskTimeParser do
         nodes = parse('reunião com chefe 1001-1120')
         nodes.name.text_value == 'reunião com chefe'
         nodes.time_setting.text_value == '1001-1120'
+        
+        #Testing limits
+        nodes = parse('lunch 23')
+        nodes.name.text_value == 'lunch'
+        nodes.time_setting.text_value == '23'
+        
+        nodes = parse('lunch 24')
+        nodes.name.text_value == 'lunch 24'
+        nodes.time_setting.should be_empty
+        
+        nodes = parse('lunch 2359')
+        nodes.name.text_value == 'lunch'
+        nodes.time_setting.text_value == '2359'
+        
+        nodes = parse('lunch 2360')
+        nodes.name.text_value == 'lunch 2360'
+        nodes.time_setting.text_value.should be_empty
+        
+        nodes = parse('lunch 0000')
+        nodes.name.text_value == 'lunch'
+        nodes.time_setting.text_value.should == '0000'
       end
     end
   end

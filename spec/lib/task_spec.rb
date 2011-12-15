@@ -68,7 +68,13 @@ describe TimeControl::Task do
         time = Time.mktime(2011,12,15,9,10)
         task.start_time.should == time
 
+        @nodes.time_setting = '1600-1700'
         task = TimeControl::Task.parse("task name 1600-1700")
+        task.name.should == 'task name'
+        start_time = Time.mktime(2011,12,15,16)
+        end_time = Time.mktime(2011,12,15,17)
+        task.start_time.should == start_time
+        task.end_time.should == end_time
       end
     end
   end
