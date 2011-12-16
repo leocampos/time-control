@@ -4,7 +4,17 @@ grammar TaskTime
   end
 
   rule name
-    ([^ ] / ' ' !time)+
+    (string / ([^ ] / ' ' !time)+) {
+      def text_value
+        return value.text_value if self.respond_to?:value
+        
+        super
+      end
+    }
+  end
+  
+  rule string
+    '\'' value:([^']*) '\'' / '"' value:([^"]*) '"'
   end
   
   rule time

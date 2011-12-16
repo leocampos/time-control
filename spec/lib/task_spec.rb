@@ -103,5 +103,10 @@ describe TimeControl::Task do
     it 'should respond to end_time' do
       @task.should respond_to(:end_time)
     end
+    
+    context 'when saved' do
+      it 'with no time settings should use now as initial time of this task and as ending time of the last one' do
+      end
+    end
   end
 end

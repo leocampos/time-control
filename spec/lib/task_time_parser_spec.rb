@@ -27,10 +27,33 @@ describe TimeControl::Parser::TaskTimeParser do
         parse('com uso do + no meio do texto').should_not be_nil
         parse('com uso do +5 no meio do texto').should_not be_nil
         parse('com uso do +5m no meio do texto').should be_nil
+        
+        parse('renião sala').should be
 
         parse('com uso do +5m').should_not be_nil
         parse('com uso do 16').should_not be_nil
         parse('com uso do 25').should_not be_nil #Passa a considerar tudo como nome da Task
+      end
+    end
+    
+    context 'using "" or '' to scape special characters' do
+      it 'should consider everything inside as task name' do
+        nodes = parse("'meeting at room 16'")
+        nodes.should_not be_nil
+        nodes.name.text_value.should == 'meeting at room 16'
+        
+        nodes = parse('"meeting at room 16"')
+        nodes.should_not be_nil
+        nodes.name.text_value.should == 'meeting at room 16'
+        
+        nodes = parse('"meeting at \'the human resources\' room 16"')
+        nodes.should_not be_nil
+        nodes.name.text_value.should == "meeting at 'the human resources' room 16"
+        
+        nodes = parse('"reading spreadsheet 1601-19" -30m')
+        nodes.should_not be_nil
+        nodes.name.text_value.should == 'reading spreadsheet 1601-19'
+        nodes.time_setting.text_value.should == '-30m'
       end
     end
 
