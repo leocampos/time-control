@@ -8,6 +8,7 @@ module TimeControl
 		if task_settings.is_a?(Hash)
 			@name = task_settings[:name] || task_settings['name']
 			@start_time = task_settings[:start] || task_settings['start']
+			@end_time = task_settings[:ending] || task_settings['ending']
 		end
 
 		@name = task_settings if task_settings.is_a?(String) || task_settings.is_a?(Symbol)
@@ -22,11 +23,13 @@ module TimeControl
   		name = nodes.name
   		time_setting = nodes.time_setting
       start_time = nil
+      end_time = nil
   		
   		unless time_setting.nil?
         mtc = nil
+        now = Time.now
+        
   			if (mtc = time_setting.match(/^([+-])(\d+)([smhd])$/))
-  				now = Time.now
   				operator = mtc[1]
   				amount = mtc[2]
   				unit = mtc[3]
@@ -40,13 +43,26 @@ module TimeControl
           
   				start_time = now + seconds
   			elsif (mtc = time_setting.match(/^(\d{2})(\d{2})?$/))
-  			  minute = mtc[2]
+  			  minute = mtc[2] || '00'
   			  hour = mtc[1]
-  			elsif (mtc = time_setting.match(/^(\d{4}|\d{2})-(\d{4}|\d{2})$/)
+  			  
+  			  start_time = Time.mktime(now.year, now.month, now.day, hour.to_i, minute.to_i, 0)
+        elsif (mtc = time_setting.match(/^(\d{4}|\d{2})-(\d{4}|\d{2})$/))
+          start = mtc[1]
+          ending = mtc[2]
+          
+          start_hour = start[0,2]
+          start_minute = start.size == 4 ? start[2,4] : 0
+          
+          end_hour = ending[0,2]
+          end_minute = ending.size == 4 ? ending[2,4] : 0
+          
+          start_time = Time.mktime(now.year, now.month, now.day, start_hour.to_i, start_minute.to_i, 0)
+          end_time = Time.mktime(now.year, now.month, now.day, end_hour.to_i, end_minute.to_i, 0)
   			end
   		end
 
-  		Task.new(:name => name, :start => start_time)
+  		Task.new(:name => name, :start => start_time, :ending => end_time)
   	end
   end
 end
