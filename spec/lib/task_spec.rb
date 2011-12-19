@@ -105,7 +105,40 @@ describe TimeControl::Task do
     end
     
     context 'when saved' do
+      it "should be invalid without a taskname" do
+        task = TimeControl::Task.new
+        task.should_not be_valid
+        task.name = 'name'
+        task.should_be_valid
+      end
+        
       it 'with no time settings should use now as initial time of this task and as ending time of the last one' do
+        #Task.new
+        
+      end
+      
+      context 'given time settings' do
+        # Possible situations:
+        #   Case 1: There is an open task and actual task has start time after last task's beginning time
+        #     A:  ------ 
+        #         ------
+        #     B:  ------ 
+        #         xxxxxx
+        #     => new task
+        # 
+        #   Case 2: Last task is closed and actual task's starting time is after last task's ending time
+        #     A:  ------ 
+        #         ------
+        #     B:  ------ 
+        #         ------
+        #     => new task
+        #     
+        #   Case 3: New task starts between last task's starting and ending time
+        #     A:  ------ 
+        #         ------
+        #     B:  ------ 
+        #         ------
+        #     => new task
       end
     end
   end

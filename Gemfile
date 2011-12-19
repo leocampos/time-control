@@ -1,4 +1,5 @@
 gem 'treetop'
+gem 'activerecord'
 
 group :test do
   gem 'ruby-debug'

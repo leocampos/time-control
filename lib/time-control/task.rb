@@ -1,5 +1,7 @@
 module TimeControl
-  class Task
+  class Task < ActiveRecord::Base
+    validates_presence_of :name
+    
   	attr_accessor :name, :start_time, :end_time
 
   	def initialize(task_settings=nil)
