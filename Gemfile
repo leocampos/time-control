@@ -1,3 +1,5 @@
+source :rubygems
+
 gem 'treetop'
 gem 'activerecord'
 
