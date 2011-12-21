@@ -1,2 +1,6 @@
 sublime_text: Fatal IO error 11 (Resource temporarily unavailable) on X server :0.0.
 sublime_text: Fatal IO error 11 (Resource temporarily unavailable) on X server :0.
+
+(sublime_text:3031): Gtk-WARNING **: Unable to retrieve the file info for `file:///home/leonardo/work/time-control/lib/config/database.yml': Error stating file '/home/leonardo/work/time-control/lib/config/database.yml': No such file or directory
+
+(sublime_text:3031): Gtk-WARNING **: Unable to retrieve the file info for `file:///home/leonardo/work/time-control/lib/time-control/dbconnection.rb': Error stating file '/home/leonardo/work/time-control/lib/time-control/dbconnection.rb': No such file or directory

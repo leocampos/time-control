@@ -1,0 +1,13 @@
+test:
+  adapter: mysql
+  database: time_control_test
+  username: root
+  password: 
+  host: localhost
+
+development:
+  adapter: mysql
+  database: time_control
+  username: root
+  password: 
+  host: localhost
