@@ -2,9 +2,9 @@ require 'rubygems'
 require "bundler/setup"
 
 module TimeControl
-  autoload :Task, 'time-control/task'
+  autoload :Task,   File.dirname( __FILE__ ) + '/time-control/task'
   
   module Parser
-    autoload :TaskTimeParser, 'time-control/task_time_parser'
+    autoload :TaskTimeParser, File.dirname( __FILE__ ) + '/time-control/task_time_parser'
   end
 end

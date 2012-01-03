@@ -6,6 +6,8 @@ require 'bundler/setup' if File.exists?(ENV['BUNDLE_GEMFILE'])
 require "treetop"
 require "ruby-debug"
 require "active_record"
+ENV["RAILS_ENV"] = 'test'
+require 'time-control/dbconnection'
 
 lib_path = File.expand_path('../../lib', __FILE__)
 $:.unshift lib_path unless $:.include? lib_path

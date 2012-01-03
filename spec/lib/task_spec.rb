@@ -47,13 +47,7 @@ describe TimeControl::Task do
 
     context 'when parse is called' do
       before(:each) do
-        Nodes = Struct.new(:name, :time_setting)
-        @nodes = Nodes.new('task name')
-        parser = "parser"
-        parser.stubs(:parse).returns(@nodes)
-
         Time.stubs(:now).returns(Time.mktime(2011,12,15,9,5))
-        TimeControl::Parser::TaskTimeParser.stubs(:new).returns(parser)
       end
 
       it 'should return an instance in accordance to the syntax' do
@@ -62,13 +56,11 @@ describe TimeControl::Task do
         task.name.should == 'task name'
         task.start_time.should be_nil
 
-        @nodes.time_setting = '+5m'
         task = TimeControl::Task.parse("task name +5m")
         task.name.should == 'task name'
         time = Time.mktime(2011,12,15,9,10)
         task.start_time.should == time
 
-        @nodes.time_setting = '1600-1700'
         task = TimeControl::Task.parse("task name 1600-1700")
         task.name.should == 'task name'
         start_time = Time.mktime(2011,12,15,16)
@@ -76,7 +68,6 @@ describe TimeControl::Task do
         task.start_time.should == start_time
         task.end_time.should == end_time
         
-        @nodes.time_setting = '16-17'
         task = TimeControl::Task.parse("task name 16-17")
         task.name.should == 'task name'
         start_time = Time.mktime(2011,12,15,16)
@@ -109,7 +100,7 @@ describe TimeControl::Task do
         task = TimeControl::Task.new
         task.should_not be_valid
         task.name = 'name'
-        task.should_be_valid
+        task.should be_valid
       end
         
       it 'with no time settings should use now as initial time of this task and as ending time of the last one' do

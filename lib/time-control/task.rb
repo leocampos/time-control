@@ -7,27 +7,33 @@ module TimeControl
   	def initialize(task_settings=nil)
   		return if task_settings.nil?
 
-		if task_settings.is_a?(Hash)
-			@name = task_settings[:name] || task_settings['name']
-			@start_time = task_settings[:start] || task_settings['start']
-			@end_time = task_settings[:ending] || task_settings['ending']
-		end
+  		if task_settings.is_a?(Hash)
+  			@name = task_settings[:name] || task_settings['name']
+  			@start_time = task_settings[:start] || task_settings['start']
+  			@end_time = task_settings[:ending] || task_settings['ending']
+  		end
 
-		@name = task_settings if task_settings.is_a?(String) || task_settings.is_a?(Symbol)
-		@name = @name.to_s
+  		@name = task_settings if task_settings.is_a?(String) || task_settings.is_a?(Symbol)
+  		@name = @name.to_s
   	end
+  	
+  	def self.most_used_list
+  	  select("name, count(id) as count").group("name").order('count desc, name').limit(100)
+	  end
 
   	def self.parse(task_description)
   		@parser = TimeControl::Parser::TaskTimeParser.new
 
   		nodes = @parser.parse(task_description)
 
-  		name = nodes.name
+  		name = nodes.name.text_value
   		time_setting = nodes.time_setting
       start_time = nil
       end_time = nil
   		
-  		unless time_setting.nil?
+  		unless time_setting.nil? || time_setting.text_value.empty?
+  		  time_setting = time_setting.text_value
+  		  
         mtc = nil
         now = Time.now
         
