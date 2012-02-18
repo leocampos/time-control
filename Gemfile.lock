@@ -24,7 +24,7 @@ GEM
     metaclass (0.0.1)
     mocha (0.10.0)
       metaclass (~> 0.0.1)
-    mysql2 (0.2.6)
+    mysql2 (0.2.7)
     polyglot (0.3.2)
     rake (0.9.2.2)
     rspec (2.6.0)
@@ -48,6 +48,9 @@ GEM
     standalone_migrations (1.0.5)
       activerecord (>= 3)
       rake
+    step-up (0.8.0)
+      thor (>= 0.14.6)
+    thor (0.14.6)
     treetop (1.4.10)
       polyglot
       polyglot (>= 0.3.1)
@@ -61,9 +64,10 @@ DEPENDENCIES
   factory_girl
   highline
   mocha
-  mysql2
+  mysql2 (< 0.3)
   rake (~> 0.9.2)
   rspec
   ruby-debug19
   standalone_migrations (= 1.0.5)
+  step-up (~> 0.8.0)
   treetop

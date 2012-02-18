@@ -1,12 +1,12 @@
 test:
-  adapter: mysql
+  adapter: mysql2
   database: time_control_test
   username: root
   password: 
   host: localhost
 
 development:
-  adapter: mysql
+  adapter: mysql2
   database: time_control
   username: root
   password: 
