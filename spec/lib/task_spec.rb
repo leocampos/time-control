@@ -16,30 +16,30 @@ describe TimeControl::Task do
 
       it 'should create task with its name attribute setted if first param is a String/Symbol' do
         task_name = "This is a task name"
-        task = TimeControl::Task.new(task_name)
+        task = TimeControl::Task.instantiate(task_name)
         task.name.should == task_name
 
-        task = TimeControl::Task.new(:email)
+        task = TimeControl::Task.instantiate(:email)
         task.name.should == 'email'
       end
 
       context 'with a hash argument' do
         it 'it should create a task with its name attribute setted if hash has a :name/"name" key' do
           task_name = "This is a task name"
-          task = TimeControl::Task.new(:name => task_name)
+          task = TimeControl::Task.instantiate(:name => task_name)
           task.name.should == task_name
 
-          task = TimeControl::Task.new('name' => task_name)
+          task = TimeControl::Task.instantiate('name' => task_name)
           task.name.should == task_name
         end
 
         it 'should create a task with start_time if hash has a :start/"start" key' do
           time = Time.mktime(2011,12,15)
 
-          task = TimeControl::Task.new(:start => time)
+          task = TimeControl::Task.instantiate(:start => time)
           task.start_time.should == time
 
-          task = TimeControl::Task.new('start' => time)
+          task = TimeControl::Task.instantiate('start' => time)
           task.start_time.should == time
         end
       end
@@ -54,7 +54,7 @@ describe TimeControl::Task do
         task = TimeControl::Task.parse("task name")
         task.should_not be_nil
         task.name.should == 'task name'
-        task.start_time.should be_nil
+        task.start_time.should == Time.mktime(2011,12,15,9,5)
 
         task = TimeControl::Task.parse("task name +5m")
         task.name.should == 'task name'

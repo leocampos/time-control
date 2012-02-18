@@ -2,18 +2,21 @@ module TimeControl
   class Task < ActiveRecord::Base
     validates_presence_of :name
     
-  	#attr_accessor :name, :start_time, :end_time
-
   	def self.instantiate(task_settings=nil)
   		return if task_settings.nil?
   		
-  		task = Task.new(
-  		  :name => (task_settings.is_a?(String) || task_settings.is_a?(Symbol)) ? task_settings.to_s : (task_settings[:name] || task_settings['name']), 
-  		  :start_time => (task_settings[:start] || task_settings['start']),
-  		  :end_time => (task_settings[:ending] || task_settings['ending'])
-  		)
-
-  		task
+  		name = nil
+  		start_time = nil
+  		end_time = nil
+  		if (task_settings.is_a?(String) || task_settings.is_a?(Symbol))
+  		  name = task_settings.to_s
+		  else
+		    name = task_settings[:name] || task_settings['name']
+		    start_time = task_settings[:start] || task_settings['start']
+  		  end_time = task_settings[:ending] || task_settings['ending']
+	    end
+  		
+  		Task.new(:name => name, :start_time => start_time, :end_time => end_time)
   	end
   	
   	def self.ask_for_task
