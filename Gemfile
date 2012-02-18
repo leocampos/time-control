@@ -6,7 +6,7 @@ gem 'highline'
 gem 'mysql2'
 
 group :test do
-  gem 'ruby-debug'
+  gem 'ruby-debug19'
   gem 'rspec'
   gem 'mocha'
   gem 'factory_girl'
