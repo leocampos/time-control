@@ -1,32 +1,5 @@
-#!/usr/bin/ruby
-require 'rubygems'
-require 'lib/time-control/dbconnection'
-require 'lib/time-control'
-require 'readline'
-require 'highline/import'
-require 'active_support/core_ext'
-require "treetop"
-require "ruby-debug"
-
-puts "Welcome to Time Control"
-
-def ask_for_task
-  list = TimeControl::Task.most_used_list
-  comp = proc { |s| list.grep( /^#{Regexp.escape(s)}/ ) }
-
-  Readline.completion_append_character = " "
-  Readline.completion_proc = comp
-
-  loop do
-    say 'Task:'
-    
-    line = Readline.readline('', true)
-    task = TimeControl::Task.parse(line)
-    task_name = task.name
-    task.save
-    
-    list << task_name unless list.include? task_name
-  end
-end
-
-ask_for_task
+#!/bin/bash
+# Use the correct ruby
+source "$HOME/.rvm/scripts/rvm"
+rvm use "ruby-1.9.2-p290@time-control"
+ruby start.rb

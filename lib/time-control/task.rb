@@ -2,20 +2,42 @@ module TimeControl
   class Task < ActiveRecord::Base
     validates_presence_of :name
     
-  	attr_accessor :name, :start_time, :end_time
+  	#attr_accessor :name, :start_time, :end_time
 
-  	def initialize(task_settings=nil)
+  	def self.instantiate(task_settings=nil)
   		return if task_settings.nil?
+  		
+  		task = Task.new(
+  		  :name => (task_settings.is_a?(String) || task_settings.is_a?(Symbol)) ? task_settings.to_s : (task_settings[:name] || task_settings['name']), 
+  		  :start_time => (task_settings[:start] || task_settings['start']),
+  		  :end_time => (task_settings[:ending] || task_settings['ending'])
+  		)
 
-  		if task_settings.is_a?(Hash)
-  			@name = task_settings[:name] || task_settings['name']
-  			@start_time = task_settings[:start] || task_settings['start']
-  			@end_time = task_settings[:ending] || task_settings['ending']
-  		end
-
-  		@name = task_settings if task_settings.is_a?(String) || task_settings.is_a?(Symbol)
-  		@name = @name.to_s
+  		task
   	end
+  	
+  	def self.ask_for_task
+      list = most_used_list
+      comp = proc { |s| list.grep( /^#{Regexp.escape(s)}/ ) }
+
+      Readline.completion_append_character = " "
+      Readline.completion_proc = comp
+
+      loop do
+        say 'Task:'
+
+        line = Readline.readline('', true)
+        
+        return if ['exit', 'quit', 'abort'].any? {|text| line == text}
+        
+        task = parse(line)
+        task_name = task.name
+        debugger
+        task.save
+
+        list << task_name unless list.include? task_name
+      end
+    end
   	
   	def self.most_used_list
   	  select("name, count(id) as count").group("name").order('count desc, name').limit(100)
@@ -28,7 +50,7 @@ module TimeControl
 
   		name = nodes.name.text_value
   		time_setting = nodes.time_setting
-      start_time = nil
+      start_time = Time.now
       end_time = nil
   		
   		unless time_setting.nil? || time_setting.text_value.empty?
@@ -70,7 +92,7 @@ module TimeControl
   			end
   		end
 
-  		Task.new(:name => name, :start => start_time, :ending => end_time)
+  		Task.instantiate(:name => name, :start => start_time, :ending => end_time)
   	end
   end
 end
