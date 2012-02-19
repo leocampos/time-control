@@ -1,8 +1,9 @@
 module TimeControl
   class Task < ActiveRecord::Base
-    validates_presence_of :name
+    before_create :fit_new_task
+    validates_presence_of :name 
     
-  	def self.instantiate(task_settings=nil)
+  	def self.prepare_creation(task_settings=nil)
   		return if task_settings.nil?
   		
   		name = nil
@@ -25,7 +26,7 @@ module TimeControl
 
       Readline.completion_append_character = " "
       Readline.completion_proc = comp
-
+      
       loop do
         say 'Task:'
 
@@ -35,7 +36,6 @@ module TimeControl
         
         task = parse(line)
         task_name = task.name
-        debugger
         task.save
 
         list << task_name unless list.include? task_name
@@ -95,7 +95,104 @@ module TimeControl
   			end
   		end
 
-  		Task.instantiate(:name => name, :start => start_time, :ending => end_time)
+  		Task.prepare_creation(:name => name, :start => start_time, :ending => end_time)
   	end
+  	
+  	private
+  	def fit_new_task()
+  	  return if self.respond_to? :skip_callback
+      # if self.end_time.nil?
+      #   former_tasks = Task.where("start_time >= ? OR (start_time < ? AND (end_time > ? or end_time IS NULL))", [start_time, start_time, start_time])
+      #       else
+      #         former_tasks = Task.where("end_time > ? and start_time < ?", [start_time, end_time])
+      #       end
+      
+      last_task = Task.last
+      return unless last_task #This is the first task entered on the system
+
+      #Most common case: Last task has no ending and starts before actual task
+      if last_task.end_time.nil? && last_task.start_time < self.start_time
+        last_task.update_attributes(:end_time => self.start_time)
+        return
+      end
+      
+      #Case 2: Last task had finished before this task start
+      if (not last_task.end_time.nil?) && last_task.end_time < self.start_time
+        #Nothing to do
+        return
+      end
+      
+      #Case 3: Actual task starts between last_task start and end, but finishes after
+      if last_task.start_time < self.start_time && last_task.end_time > self.start_time && (self.end_time.nil? || last_task.end_time < self.end_time)
+        last_task.update_attributes(:end_time => self.start_time)
+        return
+      end
+      
+      #Case 4: Actual task is contained within start and end_time of last_task
+      if (not (self.end_time.nil? || last_task.end_time.nil?)) && last_task.start_time < self.start_time && last_task.end_time > self.end_time
+        #In this cenario, last task has to be broken into two pieces
+        new_last_task = Task.new(:name => last_task.name, :start_time => self.end_time, :end_time => last_task.end_time)
+        class << new_last_task
+          def skip_callback;end
+        end
+        new_last_task.save
+        
+        last_task.update_attributes(:end_time => self.start_time)
+      end
+      
+      #Case 5: Actual task starts somewhere before last task, but has no ending
+      if self.end_time.nil? && self.start_time < last_task.start_time
+        #we'll have to delete all tasks which starts after the actual one
+        Task.delete_all("start_time > ?", self.start_time)
+        #Now we reccur to recursion to save the day
+        fit_new_task
+        return 
+      end
+      
+      #Case 6: Actual task is contained in a former task time
+      if (not self.end_time.nil?) && self.start_time < last_task.start_time
+        container_task = Task.where('start_time < :start_date AND end_time > :end_date', {:start_date => self.start_time, :end_date => self.end_time})
+        unless container_task.nil? || container_task.size == 0
+          container_task = container_task.first
+          new_last_task = Task.new(:name => container_task.name, :start_time => self.end_time, :end_time => container_task.end_time)
+          class << new_last_task
+            def skip_callback;end
+          end
+          new_last_task.save
+
+          container_task.update_attributes(:end_time => self.start_time)
+          
+          return
+        end
+      end
+      
+      #Case 7: Actual task starts somewhere inside a task and ends somewhere inside another task
+      if (not self.end_time.nil?) && self.start_time < last_task.start_time
+        #This should return 2 tasks that should serve as guides to find the remaining ones
+        former_tasks = Task.where('(start_time < :start_time AND end_time > :start_time) OR (start_time < :end_time AND end_time > :end_time)', {:start_time => self.start_time, :end_time => self.end_time}).order("start_time ASC")
+        
+        unless former_tasks.nil? || former_tasks.size != 2 
+          first_former = former_tasks.first
+          last_former = former_tasks.last
+
+          Task.delete_all(["start_time >= ? AND end_time <= ?", first_former.end_time, last_former.start_time])
+          first_former.update_attributes(:end_time => self.start_time)
+          last_former.update_attributes(:end_time => self.start_time)
+          return
+        end
+      end
+      
+      #Case 8: Actual task starts somewhere inside a task and ends after all tasks
+      unless self.end_time.nil?
+        if self.start_time < last_task.start_time #it must have started before last task
+          if (last_task.end_time.nil? && self.end_time > last_task.start_time) # actual task should be ending after last task
+            #It should delete all tasks that start after this start and call for recursion
+            Task.delete_all(["start_time >= ?", self.start_time])
+            fit_new_task
+            return
+          end  
+        end
+      end
+    end
   end
 end

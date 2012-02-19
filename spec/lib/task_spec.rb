@@ -16,30 +16,30 @@ describe TimeControl::Task do
 
       it 'should create task with its name attribute setted if first param is a String/Symbol' do
         task_name = "This is a task name"
-        task = TimeControl::Task.instantiate(task_name)
+        task = TimeControl::Task.prepare_creation(task_name)
         task.name.should == task_name
 
-        task = TimeControl::Task.instantiate(:email)
+        task = TimeControl::Task.prepare_creation(:email)
         task.name.should == 'email'
       end
 
       context 'with a hash argument' do
         it 'it should create a task with its name attribute setted if hash has a :name/"name" key' do
           task_name = "This is a task name"
-          task = TimeControl::Task.instantiate(:name => task_name)
+          task = TimeControl::Task.prepare_creation(:name => task_name)
           task.name.should == task_name
 
-          task = TimeControl::Task.instantiate('name' => task_name)
+          task = TimeControl::Task.prepare_creation('name' => task_name)
           task.name.should == task_name
         end
 
         it 'should create a task with start_time if hash has a :start/"start" key' do
           time = Time.mktime(2011,12,15)
 
-          task = TimeControl::Task.instantiate(:start => time)
+          task = TimeControl::Task.prepare_creation(:start => time)
           task.start_time.should == time
 
-          task = TimeControl::Task.instantiate('start' => time)
+          task = TimeControl::Task.prepare_creation('start' => time)
           task.start_time.should == time
         end
       end
@@ -102,13 +102,91 @@ describe TimeControl::Task do
         task.name = 'name'
         task.should be_valid
       end
-        
-      it 'with no time settings should use now as initial time of this task and as ending time of the last one' do
-        #Task.new
-        
-      end
       
       context 'given time settings' do
+        before :each do
+          TimeControl::Task.delete_all
+          
+          TimeControl::Task.create([
+            {:name => 'First Task', :start_time => Time.mktime(2011,12,15,9,5), :end_time => Time.mktime(2011,12,15,9,15)},
+            {:name => 'Second Task', :start_time => Time.mktime(2011,12,15,9,15)}
+          ])
+        end
+        
+        context 'with start_time gt start_time of last task and last task s end time null' do
+          it 'should use start time as last tasks end time' do
+            task = TimeControl::Task.create(:name => 'Third Task', :start_time => Time.mktime(2011,12,15,9,25))
+            
+            TimeControl::Task.find_by_name('Second Task').end_time.should == task.start_time
+          end
+        end
+        
+        context 'with start_time gt end_time of last task' do
+          it 'should use start time as last tasks end time' do
+            third_task = TimeControl::Task.create(:name => 'Third Task', :start_time => Time.mktime(2011,12,15,9,25), :end_time => Time.mktime(2011,12,15,9,35))
+            fourth_task = TimeControl::Task.create(:name => 'Fourth Task', :start_time => Time.mktime(2011,12,15,9,55))
+            
+            TimeControl::Task.find_by_name('Third Task').end_time.should == Time.mktime(2011,12,15,9,35)
+          end
+        end
+        
+        context 'with start_time between last tasks beginning and ending and actual ending null' do
+          it 'should update last tasks ending to be the actual starting time' do
+            third_task = TimeControl::Task.create(:name => 'Third Task', :start_time => Time.mktime(2011,12,15,9,00), :end_time => Time.mktime(2011,12,15,9,40))
+            fourth_task = TimeControl::Task.create(:name => 'Fourth Task', :start_time => Time.mktime(2011,12,15,9,20))
+            
+            TimeControl::Task.find_by_name('Third Task').end_time.should == Time.mktime(2011,12,15,9,20)
+          end
+        end
+        
+        context 'with start_time between last tasks beginning and ending and actual ending greater than last tasks ending' do
+          it 'should update last tasks ending to be the actual starting time' do
+            third_task = TimeControl::Task.create(:name => 'Third Task', :start_time => Time.mktime(2011,12,15,9,00), :end_time => Time.mktime(2011,12,15,9,40))
+            fourth_task = TimeControl::Task.create(:name => 'Fourth Task', :start_time => Time.mktime(2011,12,15,9,20), :end_time => Time.mktime(2011,12,15,9,50))
+            
+            TimeControl::Task.find_by_name('Third Task').end_time.should == Time.mktime(2011,12,15,9,20)
+          end
+        end
+        
+        context 'with start_time and end_time between last tasks start_time and end_time' do
+          it 'should save actual task splitting last task in two' do
+            third_task = TimeControl::Task.create(:name => 'Third Task', :start_time => Time.mktime(2011,12,15,9,00), :end_time => Time.mktime(2011,12,15,11,00))
+            fourth_task = TimeControl::Task.create(:name => 'Fourth Task', :start_time => Time.mktime(2011,12,15,9,20), :end_time => Time.mktime(2011,12,15,9,50))
+            
+            TimeControl::Task.where(:name => 'Third Task').size.should == 2
+          end
+        end
+        
+        context 'with start time before several tasks start time and end time after all of those' do
+          it 'should delete all tasks in between' do
+            TimeControl::Task.create(:name => 'Third Task', :start_time => Time.mktime(2011,12,15,9,0), :end_time => Time.mktime(2011,12,15,9,25))
+            
+            TimeControl::Task.all.size.should == 1
+          end
+        end
+        
+        context 'contained within an old task' do
+          it 'should split this task apart' do
+            TimeControl::Task.create(:name => 'Third Task', :start_time => Time.mktime(2011,12,15,9,6), :end_time => Time.mktime(2011,12,15,9,14))
+            
+            TimeControl::Task.where(:name => 'First Task').size.should == 2
+          end
+        end
+        
+        context 'starts within a task and ends within another taks' do
+          it 'should split this task apart' do
+            TimeControl::Task.create([
+              {:name => 'Third Task', :start_time => Time.mktime(2011,12,15,9,25), :end_time => Time.mktime(2011,12,15,9,35)},
+              {:name => 'Fourth Task', :start_time => Time.mktime(2011,12,15,9,35), :end_time => Time.mktime(2011,12,15,9,45)},
+              {:name => 'Fifth Task', :start_time => Time.mktime(2011,12,15,9,45)}
+            ])
+            
+            TimeControl::Task.create(:name => 'Sixth Task', :start_time => Time.mktime(2011,12,15,9,6), :end_time => Time.mktime(2011,12,15,9,44))
+            
+            TimeControl::Task.all.size.should == 4
+          end
+        end
+        
         # Possible situations:
         #   Case 1: There is an open task and actual task has start time after last task's beginning time
         #     A:  ------ 
