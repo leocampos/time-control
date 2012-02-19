@@ -5,6 +5,58 @@ describe TimeControl::Task do
     it 'should respond to parse' do
       TimeControl::Task.should respond_to(:parse)
     end
+    
+    it 'should respond to ask_for_task' do
+      TimeControl::Task.should respond_to(:ask_for_task)
+    end
+    
+    context 'on asking for task' do
+      before :each do
+        TimeControl::Task.stubs(:say)
+        TimeControl::Task.stubs(:most_used_list).returns([])
+      end
+      
+      it 'should exit if readline returns exit' do
+        Readline.stubs(:readline).with('', true).returns('exit')
+        TimeControl::Task.ask_for_task
+      end
+      
+      it 'should exit if readline returns quit' do
+        Readline.stubs(:readline).with('', true).returns('quit')
+        TimeControl::Task.ask_for_task
+      end
+      
+      it 'should exit if readline returns abort' do
+        Readline.stubs(:readline).with('', true).returns('abort')
+        TimeControl::Task.ask_for_task
+      end
+      
+      context 'and receiving an exit sign' do
+        before(:each) do
+          @now = Time.mktime(2011,12,15,9,5)
+          Time.stubs(:now).returns(@now)
+          Readline.stubs(:readline).with('', true).returns('exit')
+        end
+        
+        it 'should retrieve last task and close it if it has no end time' do
+          stub = TimeControl::Task.new
+
+          TimeControl::Task.expects(:last).once.returns(stub)
+          stub.expects(:update_attributes).with(:end_time => @now).once
+          
+          TimeControl::Task.ask_for_task
+        end
+        
+        it 'should retrieve last task and keep it as is if it has end time' do          
+          stub = TimeControl::Task.new(:end_time => @now)
+
+          TimeControl::Task.expects(:last).once.returns(stub)
+          stub.expects(:update_attributes).never
+          
+          TimeControl::Task.ask_for_task
+        end
+      end
+    end
 
     context 'when the constructor is called' do
       it 'without any parameters it should create an empty task' do
@@ -186,28 +238,6 @@ describe TimeControl::Task do
             TimeControl::Task.all.size.should == 4
           end
         end
-        
-        # Possible situations:
-        #   Case 1: There is an open task and actual task has start time after last task's beginning time
-        #     A:  ------ 
-        #         ------
-        #     B:  ------ 
-        #         xxxxxx
-        #     => new task
-        # 
-        #   Case 2: Last task is closed and actual task's starting time is after last task's ending time
-        #     A:  ------ 
-        #         ------
-        #     B:  ------ 
-        #         ------
-        #     => new task
-        #     
-        #   Case 3: New task starts between last task's starting and ending time
-        #     A:  ------ 
-        #         ------
-        #     B:  ------ 
-        #         ------
-        #     => new task
       end
     end
   end

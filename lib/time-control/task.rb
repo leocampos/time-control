@@ -32,7 +32,11 @@ module TimeControl
 
         line = Readline.readline('', true)
         
-        return if ['exit', 'quit', 'abort'].any? {|text| line == text}
+        if ['exit', 'quit', 'abort'].any? {|text| line == text}
+          last_task = Task.last
+          last_task.update_attributes(:end_time => Time.now) if last_task.end_time.nil?
+          return
+        end
         
         task = parse(line)
         task_name = task.name
@@ -101,15 +105,22 @@ module TimeControl
   	private
   	def fit_new_task()
   	  return if self.respond_to? :skip_callback
-      # if self.end_time.nil?
-      #   former_tasks = Task.where("start_time >= ? OR (start_time < ? AND (end_time > ? or end_time IS NULL))", [start_time, start_time, start_time])
-      #       else
-      #         former_tasks = Task.where("end_time > ? and start_time < ?", [start_time, end_time])
-      #       end
       
       last_task = Task.last
-      return unless last_task #This is the first task entered on the system
+      return unless last_task #This is the first task entered on the system, there's no need to work on this task any further
 
+      if self.end_time.nil?
+        Task.delete_all(["start_time >= ?", self.start_time])
+        
+        affected_task = Task.where(["start_time < ? AND (end_time IS NULL OR end_time > ?)", self.start_time, self.start_time])
+        return if affected_task.nil? || affected_task.size == 0
+      
+        affected_task[0].update_attributes(:end_time => self.start_time)
+        
+        return
+      end
+
+      #FROM DOWN HERE IT NEEDS SERIOUS REFACTORING
       #Most common case: Last task has no ending and starts before actual task
       if last_task.end_time.nil? && last_task.start_time < self.start_time
         last_task.update_attributes(:end_time => self.start_time)
@@ -159,7 +170,7 @@ module TimeControl
             def skip_callback;end
           end
           new_last_task.save
-
+      
           container_task.update_attributes(:end_time => self.start_time)
           
           return
@@ -174,7 +185,7 @@ module TimeControl
         unless former_tasks.nil? || former_tasks.size != 2 
           first_former = former_tasks.first
           last_former = former_tasks.last
-
+      
           Task.delete_all(["start_time >= ? AND end_time <= ?", first_former.end_time, last_former.start_time])
           first_former.update_attributes(:end_time => self.start_time)
           last_former.update_attributes(:end_time => self.start_time)
