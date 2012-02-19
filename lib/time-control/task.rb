@@ -143,7 +143,7 @@ module TimeControl
       #Case 5: Actual task starts somewhere before last task, but has no ending
       if self.end_time.nil? && self.start_time < last_task.start_time
         #we'll have to delete all tasks which starts after the actual one
-        Task.delete_all("start_time > ?", self.start_time)
+        Task.delete_all(["start_time > ?", self.start_time])
         #Now we reccur to recursion to save the day
         fit_new_task
         return 
