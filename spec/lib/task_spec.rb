@@ -1,6 +1,18 @@
 require 'spec_helper'
 
+module TimeControlTaskHelper
+  def create_without_validation(data)
+    data.each do |d|
+      task = TimeControl::Task.new(d)
+      class << task;def skip_callback;end;end
+      task.save
+    end
+  end
+end
+
 describe TimeControl::Task do
+  include TimeControlTaskHelper
+  
   context 'the class' do
     it 'should respond to parse' do
       TimeControl::Task.should respond_to(:parse)
@@ -159,10 +171,12 @@ describe TimeControl::Task do
         before :each do
           TimeControl::Task.delete_all
           
-          TimeControl::Task.create([
+          data = [
             {:name => 'First Task', :start_time => Time.mktime(2011,12,15,9,5), :end_time => Time.mktime(2011,12,15,9,15)},
             {:name => 'Second Task', :start_time => Time.mktime(2011,12,15,9,15)}
-          ])
+          ]
+          
+          create_without_validation(data)
         end
         
         context 'with start_time gt start_time of last task and last task s end time null' do
@@ -211,14 +225,16 @@ describe TimeControl::Task do
         
         context 'with start time before several tasks start time and end time after all of those' do
           it 'should delete all tasks in between' do
+            #starts before First Task ends after Second task start
             TimeControl::Task.create(:name => 'Third Task', :start_time => Time.mktime(2011,12,15,9,0), :end_time => Time.mktime(2011,12,15,9,25))
             
-            TimeControl::Task.all.size.should == 1
+            TimeControl::Task.count.should == 2 #The second task, which is altered, and the new one
           end
         end
         
         context 'contained within an old task' do
           it 'should split this task apart' do
+            #Starts just after Fist Task and Ends just before First Task
             TimeControl::Task.create(:name => 'Third Task', :start_time => Time.mktime(2011,12,15,9,6), :end_time => Time.mktime(2011,12,15,9,14))
             
             TimeControl::Task.where(:name => 'First Task').size.should == 2
@@ -227,15 +243,17 @@ describe TimeControl::Task do
         
         context 'starts within a task and ends within another taks' do
           it 'should split this task apart' do
-            TimeControl::Task.create([
+            TimeControl::Task.find_by_name('Second Task').update_attributes(:end_time => Time.mktime(2011,12,15,9,25))
+            create_without_validation([
               {:name => 'Third Task', :start_time => Time.mktime(2011,12,15,9,25), :end_time => Time.mktime(2011,12,15,9,35)},
               {:name => 'Fourth Task', :start_time => Time.mktime(2011,12,15,9,35), :end_time => Time.mktime(2011,12,15,9,45)},
               {:name => 'Fifth Task', :start_time => Time.mktime(2011,12,15,9,45)}
             ])
             
+            #Starts just after First Task, and ends Before the end of Fourth task, so it shoul end up with Fisrt, Sixth, Fourth, Fifth
             TimeControl::Task.create(:name => 'Sixth Task', :start_time => Time.mktime(2011,12,15,9,6), :end_time => Time.mktime(2011,12,15,9,44))
             
-            TimeControl::Task.all.size.should == 4
+            TimeControl::Task.count.should == 4
           end
         end
       end
