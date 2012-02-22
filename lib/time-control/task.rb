@@ -34,6 +34,8 @@ module TimeControl
         
         if ['exit', 'quit', 'abort'].any? {|text| line == text}
           last_task = Task.last
+          return unless last_task
+          
           last_task.update_attributes(:end_time => Time.now) if last_task.end_time.nil?
           return
         end
@@ -106,6 +108,8 @@ module TimeControl
   	def fit_new_task()
   	  return if self.respond_to? :skip_callback
 
+      debugger if name == 'Fourth Task' && start_time == Time.mktime(2011,12,15,9,55)
+      
       #we should find the start affected task and the end affected task
       first_affected_task = Task.where(["start_time < ? AND (end_time IS NULL OR end_time > ?)", self.start_time, self.start_time])
       last_affected_task = self.end_time.nil? ? [] : Task.where(["start_time < ? AND (end_time IS NULL OR end_time > ?)", self.end_time, self.end_time])
@@ -115,7 +119,7 @@ module TimeControl
       
       #Starts before all tasks and end after all tasks
       if first_affected_task.nil? && last_affected_task.nil?
-        Task.delete_all
+        Task.delete_all(['start_time > ?', self.start_time]) #the query is a sauf-guard from the possibility of all task being closed
         return
       end
       
@@ -135,7 +139,13 @@ module TimeControl
         return
       end
       
-      if first_affected_task == last_affected_task #this means the actual task is contained within a task
+      #this means the actual task is contained within a task
+      if first_affected_task == last_affected_task
+        if last_affected_task.end_time.nil?
+          first_affected_task.update_attributes(:end_time => self.start_time)
+          return
+        end
+        
         new_last_task = Task.new(:name => last_affected_task.name, :start_time => self.end_time, :end_time => last_affected_task.end_time)
         class << new_last_task
           def skip_callback;end

@@ -189,10 +189,13 @@ describe TimeControl::Task do
         
         context 'with start_time gt end_time of last task' do
           it 'should use start time as last tasks end time' do
+            debugger
             third_task = TimeControl::Task.create(:name => 'Third Task', :start_time => Time.mktime(2011,12,15,9,25), :end_time => Time.mktime(2011,12,15,9,35))
             fourth_task = TimeControl::Task.create(:name => 'Fourth Task', :start_time => Time.mktime(2011,12,15,9,55))
             
-            TimeControl::Task.find_by_name('Third Task').end_time.should == Time.mktime(2011,12,15,9,35)
+            third_task = TimeControl::Task.find_by_name('Third Task')
+            third_task.should be
+            third_task.end_time.should == Time.mktime(2011,12,15,9,35)
           end
         end
         
@@ -254,6 +257,23 @@ describe TimeControl::Task do
             TimeControl::Task.create(:name => 'Sixth Task', :start_time => Time.mktime(2011,12,15,9,6), :end_time => Time.mktime(2011,12,15,9,44))
             
             TimeControl::Task.count.should == 4
+          end
+        end
+        
+        context 'starts and ends "within" a not closed task' do
+          it 'should split this task apart' do
+            TimeControl::Task.find_by_name('Second Task').update_attributes(:end_time => Time.mktime(2011,12,15,9,25))
+            create_without_validation([
+              {:name => 'Third Task', :start_time => Time.mktime(2011,12,15,9,25), :end_time => Time.mktime(2011,12,15,9,35)},
+              {:name => 'Fourth Task', :start_time => Time.mktime(2011,12,15,9,35), :end_time => Time.mktime(2011,12,15,9,45)},
+              {:name => 'Fifth Task', :start_time => Time.mktime(2011,12,15,9,45)}
+            ])
+            
+            #Starts just after First Task, and ends Before the end of Fourth task, so it shoul end up with Fisrt, Sixth, Fourth, Fifth
+            TimeControl::Task.create(:name => 'Sixth Task', :start_time => Time.mktime(2011,12,15,11,00), :end_time => Time.mktime(2011,12,15,11,15))
+            
+            TimeControl::Task.count.should == 6
+            TimeControl::Task.find_by_name('Fifth Task').end_time.should == Time.mktime(2011,12,15,11,00)
           end
         end
       end

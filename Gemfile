@@ -12,7 +12,6 @@ gem 'step-up', "~> 0.8.0", :group => [:source]
 group :test do
   gem 'rspec'
   gem 'mocha'
-  gem 'factory_girl'
 end
 
 group :development do
