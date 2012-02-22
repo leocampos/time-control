@@ -189,7 +189,6 @@ describe TimeControl::Task do
         
         context 'with start_time gt end_time of last task' do
           it 'should use start time as last tasks end time' do
-            debugger
             third_task = TimeControl::Task.create(:name => 'Third Task', :start_time => Time.mktime(2011,12,15,9,25), :end_time => Time.mktime(2011,12,15,9,35))
             fourth_task = TimeControl::Task.create(:name => 'Fourth Task', :start_time => Time.mktime(2011,12,15,9,55))
             

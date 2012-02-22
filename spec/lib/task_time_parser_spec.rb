@@ -86,6 +86,10 @@ describe TimeControl::Parser::TaskTimeParser do
         nodes = parse('almoço +3 1309-14')
         nodes.name.text_value == 'almoço +3'
         nodes.time_setting.text_value == '1309-14'
+        
+        nodes = parse('almoço +3 13:09-14')
+        nodes.name.text_value == 'almoço +3'
+        nodes.time_setting.text_value == '13:09-14'
 
         nodes = parse('reunião com chefe 1001-1120')
         nodes.name.text_value == 'reunião com chefe'

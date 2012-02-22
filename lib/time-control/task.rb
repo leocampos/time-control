@@ -107,8 +107,6 @@ module TimeControl
   	private
   	def fit_new_task()
   	  return if self.respond_to? :skip_callback
-
-      debugger if name == 'Fourth Task' && start_time == Time.mktime(2011,12,15,9,55)
       
       #we should find the start affected task and the end affected task
       first_affected_task = Task.where(["start_time < ? AND (end_time IS NULL OR end_time > ?)", self.start_time, self.start_time])
