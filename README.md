@@ -53,6 +53,6 @@ On this matter, it is also possible to set the task end time, but for this one y
 
 This means Lunch task started exacty at noon and ended at 13:00 (it could also have been expressed as 1200-13, 12:00-13, 12-1300, 12-13:00, 12:00-1300, 12:00-13:00)
 
-It is important to notice that you must pay attention when you set specific times, because the system will fit the recently created task among the former ones, it this means updating or even deleting tasks in the timeline, it will be done so.
-
 * * *
+
+* It is important to notice that you must pay attention when you set specific times, because the system will fit the recently created task among the former ones, if this means updating or even deleting tasks in the timeline, it will be done so. *
