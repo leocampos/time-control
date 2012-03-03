@@ -1,5 +1,10 @@
 module TimeControl
+  class Tag < ActiveRecord::Base
+  end
+  
   class Task < ActiveRecord::Base
+    has_and_belongs_to_many :tags
+    
     before_create :fit_new_task
     validates_presence_of :name 
     
@@ -9,15 +14,21 @@ module TimeControl
   		name = nil
   		start_time = nil
   		end_time = nil
+  		tagging = nil
+  		
   		if (task_settings.is_a?(String) || task_settings.is_a?(Symbol))
   		  name = task_settings.to_s
 		  else
 		    name = task_settings[:name] || task_settings['name']
 		    start_time = task_settings[:start] || task_settings['start']
   		  end_time = task_settings[:ending] || task_settings['ending']
+  		  tagging = task_settings[:tags] || task_settings['tags']
 	    end
   		
-  		Task.new(:name => name, :start_time => start_time, :end_time => end_time)
+  		task = Task.new(:name => name, :start_time => start_time, :end_time => end_time)
+  		task.tags = tagging unless tagging.nil?
+  		
+  		task
   	end
   	
   	def self.ask_for_task
@@ -59,8 +70,19 @@ module TimeControl
 
   		name = nodes.name.text_value
   		time_setting = nodes.time_setting
+  		tags = nodes.hashes
       start_time = Time.now
       end_time = nil
+      tag_list = []
+      
+      unless tags.nil? || tags.text_value.empty?
+        tags_value = tags.striped_value
+        tags_value.gsub!(/#/, '')
+        
+        tagging = tags_value.split(/ +/)
+        
+        tag_list = self.retrived_tags(tagging)
+      end
   		
   		unless time_setting.nil? || time_setting.text_value.empty?
   		  time_setting = time_setting.striped_value
@@ -101,10 +123,19 @@ module TimeControl
   			end
   		end
 
-  		Task.prepare_creation(:name => name, :start => start_time, :ending => end_time)
+  		Task.prepare_creation(:name => name, :start => start_time, :ending => end_time, :tags => tag_list)
   	end
   	
   	private
+  	def self.retrived_tags(tag_list)
+      new_tag_list = []
+      tag_list.each do |tag_name|
+        new_tag_list << Tag.find_or_create_by_name(tag_name)
+      end
+
+      new_tag_list
+    end
+    
   	def fit_new_task()
   	  return if self.respond_to? :skip_callback
       

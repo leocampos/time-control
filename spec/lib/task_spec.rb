@@ -138,6 +138,11 @@ describe TimeControl::Task do
         end_time = Time.mktime(2011,12,15,17)
         task.start_time.should == start_time
         task.end_time.should == end_time
+        
+        task = TimeControl::Task.parse("task name #meeting #scrum")
+        task.name.should == 'task name'
+        task.tags.size.should == 2
+        task.tags.map(&:name) == ['meeting','scrum']
       end
     end
   end
