@@ -63,7 +63,7 @@ module TimeControl
       end_time = nil
   		
   		unless time_setting.nil? || time_setting.text_value.empty?
-  		  time_setting = time_setting.text_value
+  		  time_setting = time_setting.striped_value
   		  
         mtc = nil
         now = Time.now

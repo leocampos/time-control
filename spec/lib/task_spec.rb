@@ -167,6 +167,19 @@ describe TimeControl::Task do
         task.should be_valid
       end
       
+      context 'given labels' do
+        before :each do
+          TimeControl::Task.delete_all
+          
+          data = [
+            {:name => 'First Task', :start_time => Time.mktime(2011,12,15,9,5), :end_time => Time.mktime(2011,12,15,9,15)},
+            {:name => 'Second Task', :start_time => Time.mktime(2011,12,15,9,15)}
+          ]
+          
+          create_without_validation(data)
+        end
+      end
+      
       context 'given time settings' do
         before :each do
           TimeControl::Task.delete_all

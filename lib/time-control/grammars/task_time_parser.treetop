@@ -1,10 +1,22 @@
 grammar TaskTime
   rule main
-    name ' '? time_setting:time?
+    name hashes:tags? time_setting:time?
+  end
+
+  rule tags
+    ' ' (tag (' ' tag)*) {
+	  def striped_value
+		text_value.strip
+	  end
+    }
+  end
+
+  rule tag
+    '#' [^ ]+
   end
 
   rule name
-    (string / ([^ ] / ' ' !time)+) {
+    (string / texts) {
       def text_value
         return value.text_value if self.respond_to?:value
         
@@ -12,13 +24,33 @@ grammar TaskTime
       end
     }
   end
+
+  rule texts
+    text (text_separator text)*
+  end
+
+  rule text_separator
+    spaces !time
+  end
+
+  rule spaces
+    ' '+
+  end
+
+  rule text
+    [^ #]+
+  end
   
   rule string
     '\'' value:([^']*) '\'' / '"' value:([^"]*) '"'
   end
   
   rule time
-    ' '? (inc_dec / range)
+    spaces? (inc_dec / range) {
+	  def striped_value
+		text_value.strip
+	  end
+    }
   end
    
   rule inc_dec
@@ -26,7 +58,11 @@ grammar TaskTime
   end
   
   rule range
-    (hour minute? ('-' range)?) !.
+    (hour_minute ('-' hour_minute)?) !.
+  end
+
+  rule hour_minute
+    hour minute?
   end
   
   rule hour
@@ -34,6 +70,6 @@ grammar TaskTime
   end
   
   rule minute
-    [0-5] [0-9] ':'?
+    ':'? [0-5] [0-9]
   end
 end
