@@ -27,6 +27,13 @@ What happens if it is the end of the day and you want to close last task before 
 Just type "exit", "quit" or "abort" and you'll exit the program closing last task with actual time.
 
 * * *
+### Tagging the content
+A good way to organize your tasks is to label them with tags, this is done in a very similar manner of twitter
+hash tags.
+So in order to use a tag, you should mark it with a hash symbol: #work #leisure #other
+As it can be noticed from the example above, it must be separated by any number of spaces.
+
+* * *
 ### Setting the start time
 Another possibility is that you forgot to put a task for lunch, this meant you left an open task which
 took 15 minutes, as a long 1 hour and 15 minutes task. How to put an afterwards task in its due place?
