@@ -30,7 +30,9 @@ Just type "exit", "quit" or "abort" and you'll exit the program closing last tas
 ### Tagging the content
 A good way to organize your tasks is to label them with tags, this is done in a very similar manner of twitter
 hash tags.
+
 So in order to use a tag, you should mark it with a hash symbol: #work #leisure #other
+
 As it can be noticed from the example above, it must be separated by any number of spaces.
 
 * * *
