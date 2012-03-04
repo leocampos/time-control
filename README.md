@@ -58,31 +58,6 @@ One other option is to give a specific time:
 This means Lunch task started exacty at noon (it could also have been expressed as 1200 or 12:00), it is important
 to notice that time options must be the last thing used:
 
-valid examples:
-
-**meeting with joe -5m**
-
-**meeting with joe 11**
-
-**meeting with joe 1104**
-
-**meeting with joe 11:04**
-
-**meeting with joe 1104-13**
-
-**meeting with joe 1104-13:05**
-
-**meeting with joe 1104-1305**
-
-**meeting with joe 11:04-13:05**
-
-**meeting with joe 11:04-1305**
-
-**meeting with joe #work #boring 1104-13:05**
-
-**meeting with joe #work #boring 1104-1305**
-
-
 * * *
 ### Setting the end time
 On this matter, it is also possible to set the task end time, but for this one you first need to give an initial time:
@@ -92,5 +67,51 @@ On this matter, it is also possible to set the task end time, but for this one y
 This means Lunch task started exacty at noon and ended at 13:00 (it could also have been expressed as 1200-13, 12:00-13, 12-1300, 12-13:00, 12:00-1300, 12:00-13:00)
 
 * * *
+### Examples
+valid examples:
 
-* It is important to notice that you must pay attention when you set specific times, because the system will fit the recently created task among the former ones, if this means updating or even deleting tasks in the timeline, it will be done so. *
+**meeting with joe -5m**
+
+- Started 5 minutes ago
+
+**meeting with joe 11**
+
+- Started at exactly eleven o'clock
+
+**meeting with joe 1104**
+
+- Started at exactly 11:04h
+
+**meeting with joe 11:04**
+
+- Started at exactly 11:04h
+
+**meeting with joe 1104-13**
+
+- Started at exactly 11:04h and ended at 13:00h
+
+**meeting with joe 1104-13:05**
+
+- Started at exactly 11:04h and ended at 13:05h
+
+**meeting with joe 1104-1305**
+
+- Started at exactly 11:04h and ended at 13:05h
+
+**meeting with joe 11:04-13:05**
+
+- Started at exactly 11:04h and ended at 13:05h
+
+**meeting with joe 11:04-1305**
+
+- Started at exactly 11:04h and ended at 13:05h
+
+**meeting with joe #work #boring 1104-13:05**
+
+- Started at exactly 11:04h and ended at 13:05h and is labeled with two tags: work and boring
+
+**meeting with joe #work #boring 1104-1305**
+
+- Started at exactly 11:04h and ended at 13:05h and is labeled with two tags: work and boring
+
+**It is important to notice that you must pay attention when you set specific times, because the system will fit the recently created task among the former ones, if this means updating or even deleting tasks in the timeline, it will be done so.**
