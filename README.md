@@ -35,6 +35,9 @@ So in order to use a tag, you should mark it with a hash symbol: #work #leisure 
 
 As it can be noticed from the example above, it must be separated by any number of spaces.
 
+Example:
+meeting with john #business #real_state
+
 * * *
 ### Setting the start time
 Another possibility is that you forgot to put a task for lunch, this meant you left an open task which
@@ -52,7 +55,33 @@ One other option is to give a specific time:
 
 **Lunch 12**
 
-This means Lunch task started exacty at noon (it could also have been expressed as 1200 or 12:00)
+This means Lunch task started exacty at noon (it could also have been expressed as 1200 or 12:00), it is important
+to notice that time options must be the last thing used:
+
+valid examples:
+
+**meeting with joe -5m**
+
+**meeting with joe 11**
+
+**meeting with joe 1104**
+
+**meeting with joe 11:04**
+
+**meeting with joe 1104-13**
+
+**meeting with joe 1104-13:05**
+
+**meeting with joe 1104-1305**
+
+**meeting with joe 11:04-13:05**
+
+**meeting with joe 11:04-1305**
+
+**meeting with joe #work #boring 1104-13:05**
+
+**meeting with joe #work #boring 1104-1305**
+
 
 * * *
 ### Setting the end time
