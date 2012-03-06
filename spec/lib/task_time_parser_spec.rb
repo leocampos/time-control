@@ -33,6 +33,12 @@ describe TimeControl::Parser::TaskTimeParser do
         nodes.hashes.striped_value.should == '#tag1 #tag_nova2'
         nodes.name.text_value.should == 'nome da task'
       end
+      
+      it 'deveria retornar nome, hashes e horarios' do
+        nodes = parse("deploy PST #deploy #work #dst 07:30-08:20")
+        
+        nodes.should be
+      end
     end
     
     it 'com string vazia deveria retornar nulo' do

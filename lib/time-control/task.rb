@@ -52,6 +52,8 @@ module TimeControl
         end
         
         task = parse(line)
+        next if task.nil?
+        
         task_name = task.name
         task.save
 
@@ -67,7 +69,11 @@ module TimeControl
   		@parser = TimeControl::Parser::TaskTimeParser.new
 
   		nodes = @parser.parse(task_description)
-
+      if nodes.nil?
+        say 'Invalid task'
+        return
+      end
+      
   		name = nodes.name.text_value
   		time_setting = nodes.time_setting
   		tags = nodes.hashes
