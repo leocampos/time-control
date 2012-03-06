@@ -114,7 +114,7 @@ module TimeControl
   			  hour = mtc[1]
   			  
   			  start_time = Time.mktime(now.year, now.month, now.day, hour.to_i, minute.to_i, 0)
-        elsif (mtc = time_setting.match(/^(\d{4}|\d{2})-(\d{4}|\d{2})$/))
+        elsif (mtc = time_setting.match(/^(\d{4}|\d{2}|\d)-(\d{4}|\d{2}|\d)$/))
           start = mtc[1]
           ending = mtc[2]
           
