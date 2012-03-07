@@ -83,7 +83,7 @@ esac
 
 #QUERY CHUNKS
 queries['REPORT_BY_TASK']="select name as Task, sec_to_time(sum(time_to_sec(timediff(end_time, start_time)))) as Duration "
-queries['REPORT_BY_TIME']="select name as Task, start_time as Desde, end_time as Ateh "
+queries['REPORT_BY_TIME']="select name as Task, start_time as Starting, end_time as Ending "
 #queries['REPORT_BY_TIME']="select name as Task, start_time as Desde, end_time as Ateh, sec_to_time(sum(time_to_sec(timediff(end_time, start_time)))) as Duration "
 queries['SUMTIME']="select sec_to_time(sum(time_to_sec(timediff(end_time, start_time)))) as Duration "
 queries['GROUP']=" group by name "
