@@ -4,7 +4,7 @@ declare -A conditions=()
 declare -A queries=()
 
 #DEFAULTS
-query_type='REPORT'
+query_type='REPORT_BY_TASK'
 from='today'
 to='now'
 ignore=''
@@ -12,14 +12,18 @@ task=''
 debug=false
 
 #GET OPTIONS AND FLAGS
-while getopts sdi:k:t:T:f:F:h: opt
+while getopts di:k:t:T:f:F:h:m: opt
 do
 	case ${opt} in
 		i) ignore=${OPTARG};;
 		k) task=${OPTARG};;
 		f) from=${OPTARG};;
 		t) to=${OPTARG};;
-		s) query_type='SUMTIME';;
+		m) case ${OPTARG} in
+			'sum') query_type='SUMTIME';;
+			'task') query_type='REPORT_BY_TASK';;
+			'time') query_type='REPORT_BY_TIME';;
+		   esac;;
 		d) debug=true;;
 		h) cat <<EOF
 			USAGE: $0
@@ -27,7 +31,10 @@ do
 				-k task
 				-f start time <dd/mm/yyyy> [today|yesterday]
 				-t end time <dd/mm/yyyy>
-				-s sum all the durations found
+				-m mode (default: task) 
+					sum - sums up the total duration for all tasks meeting the search criteria
+					task - sums up the total duration for each task meeting the search criteria
+					time - shows a time table ordered by starting time o tasks meeting the search criteria
 	
 				If no arguments are provided, all tasks for today will be printed
 EOF
@@ -75,10 +82,13 @@ case ${to} in
 esac
 
 #QUERY CHUNKS
-queries['REPORT']="select name as Task, sec_to_time(sum(time_to_sec(timediff(end_time, start_time)))) as Duration "
+queries['REPORT_BY_TASK']="select name as Task, sec_to_time(sum(time_to_sec(timediff(end_time, start_time)))) as Duration "
+queries['REPORT_BY_TIME']="select name as Task, start_time as Desde, end_time as Ateh "
+#queries['REPORT_BY_TIME']="select name as Task, start_time as Desde, end_time as Ateh, sec_to_time(sum(time_to_sec(timediff(end_time, start_time)))) as Duration "
 queries['SUMTIME']="select sec_to_time(sum(time_to_sec(timediff(end_time, start_time)))) as Duration "
 queries['GROUP']=" group by name "
 queries['ORDER']=" order by name "
+queries['ORDER_TIME']=" order by start_time "
 query=${queries[$query_type]}
 
 
@@ -94,7 +104,8 @@ for item in "${!conditions[@]}"; do
 done
 
 case ${query_type} in
-	'REPORT') query="$query from tasks $conditional ${queries['GROUP']} ${queries['ORDER']}";;
+	'REPORT_BY_TASK') query="$query from tasks $conditional ${queries['GROUP']} ${queries['ORDER']}";;
+	'REPORT_BY_TIME') query="$query from tasks $conditional ${queries['ORDER_TIME']}";;
 	'SUMTIME') query="$query from tasks $conditional";;
 esac
 
